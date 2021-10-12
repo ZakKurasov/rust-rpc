@@ -3,6 +3,6 @@ members = [
     "rpc_client",
     "rpc_interface",
     "rpc_lib",
-    "rpc_macro",
+    "rpc_lib/rpc_macro",
     "rpc_server"
 ]

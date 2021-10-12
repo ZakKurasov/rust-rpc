@@ -2,11 +2,14 @@ pub use rpc_macro::rpc_service;
 pub use bincode;
 
 use std::collections::HashMap;
-use std::io::{BufReader, BufWriter};
-use std::net::TcpStream;
+use std::io::{Read, Write};
+
+pub trait Stream: Read + Write {}
+
+impl<T: Read + Write> Stream for T {}
 
 pub trait Handler {
-    fn handle(&mut self, reader: &mut BufReader<&TcpStream>, writer: &mut BufWriter<&TcpStream>);
+    fn handle(&mut self, reader: &mut dyn Read, writer: &mut dyn Write);
 }
 
 pub struct Server {
@@ -24,7 +27,7 @@ impl Server {
         self.handlers.insert(String::from(service_name), service_impl);
     }
 
-    pub fn handle(&mut self, mut reader: &mut BufReader<&TcpStream>, writer: &mut BufWriter<&TcpStream>) {
+    pub fn handle(&mut self, mut reader: &mut dyn Read, writer: &mut dyn Write) {
         loop {
             match bincode::deserialize_from::<_, String>(&mut reader) {
                 Ok(service_name) => {
@@ -35,7 +38,7 @@ impl Server {
                     }
                 }
                 Err(error) => {
-                    eprintln!("{}", error);
+                    eprintln!("Error: {}", error);
                     break
                 }
             }

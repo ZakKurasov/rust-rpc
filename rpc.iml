@@ -6,15 +6,15 @@
       <sourceFolder url="file://$MODULE_DIR$/rpc_client/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rpc_interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rpc_lib/rpc_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rpc_lib/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/rpc_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rpc_server/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_client/target" />
-      <excludeFolder url="file://$MODULE_DIR$/rpc_macro/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_interface/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_server/target" />
+      <excludeFolder url="file://$MODULE_DIR$/rpc_lib/rpc_macro/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

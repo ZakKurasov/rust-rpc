@@ -33,16 +33,17 @@ fn impl_client_method(service_name: &Ident, item: &TraitItem) -> proc_macro2::To
         let return_type = &method.sig.output;
         return quote! {
             fn #method_name(#(#arguments), *) #return_type {
-                use std::io::Write;
                 use bincode;
 
-                let mut writer = std::io::BufWriter::new(&self.stream);
-                bincode::serialize_into(&mut writer, stringify!(#service_name)).expect("Unable to send service name");
-                bincode::serialize_into(&mut writer, stringify!(#method_name)).expect("Unable to send method name");
-                #(#arguments_prints)*
-                writer.flush().expect("Unable to flush writer");
+                {
+                    let mut writer = std::io::BufWriter::new(&mut *self.stream);
+                    bincode::serialize_into(&mut writer, stringify!(#service_name)).expect("Unable to send service name");
+                    bincode::serialize_into(&mut writer, stringify!(#method_name)).expect("Unable to send method name");
+                    #(#arguments_prints)*
+                    std::io::Write::flush(&mut writer).expect("Unable to flush writer");
+                }
 
-                let mut reader = std::io::BufReader::new(&self.stream);
+                let mut reader = std::io::BufReader::new(&mut *self.stream);
                 return bincode::deserialize_from(&mut reader).expect("Unable to read return value");
             }
         };
@@ -57,12 +58,12 @@ fn impl_service_client(service_name: &Ident, service_interface: &ItemTrait) -> p
         .map(|item| impl_client_method(service_name, item));
     quote! {
         pub struct #client_name {
-            stream: std::net::TcpStream,
+            stream: Box<dyn rpc_lib::Stream>,
         }
         impl #client_name {
-            pub fn new(addr: &str) -> Self {
+            pub fn new(stream: Box<dyn rpc_lib::Stream>) -> Self {
                 Self {
-                    stream: std::net::TcpStream::connect(addr).expect("Unable to connect")
+                    stream
                 }
             }
         }
@@ -110,13 +111,13 @@ fn impl_wrapper_method(item: &TraitItem) -> proc_macro2::TokenStream {
                 .map(|item| item.unwrap())
                 .collect::<Vec<_>>();
             quote!(
-                fn #handler_name(&mut self, mut reader: &mut std::io::BufReader<&std::net::TcpStream>, mut writer: &mut std::io::BufWriter<&std::net::TcpStream>) {
-                    use std::io::Write;
+                fn #handler_name(&mut self, mut reader: &mut dyn std::io::Read, mut writer: &mut dyn std::io::Write) {
                     use bincode;
+
                     #(#arguments_reads)*
                     let result_value = self.handler.#method_name(#(#arguments_names), *);
                     bincode::serialize_into(&mut writer, &result_value).expect("Unable to write result value");
-                    writer.flush().expect("Unable to flush writer");
+                    std::io::Write::flush(&mut writer).expect("Unable to flush writer");
                 }
             )
         },
@@ -155,8 +156,9 @@ fn impl_service_wrapper(service_name: &Ident, service_interface: &ItemTrait) -> 
             #(#methods)*
         }
         impl<T: #service_name> rpc_lib::Handler for #wrapper_name<T> {
-            fn handle(&mut self, mut reader: &mut std::io::BufReader<&std::net::TcpStream>, writer: &mut std::io::BufWriter<&std::net::TcpStream>) {
+            fn handle(&mut self, mut reader: &mut dyn std::io::Read, writer: &mut dyn std::io::Write) {
                 use bincode;
+
                 let method_name = bincode::deserialize_from::<_, String>(&mut reader).expect("Unable to read method name");
                 match method_name.as_str() {
                     #(#handle_matches),*,
@@ -176,7 +178,6 @@ fn impl_service_macro(service_interface: &ItemTrait) -> TokenStream {
         #service_client
         #service_wrapper
     };
-    println!("Result: `{}`", service_impl.to_string());
     service_impl.into()
 }
 
