@@ -9,6 +9,8 @@
       <sourceFolder url="file://$MODULE_DIR$/rpc_lib/rpc_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rpc_lib/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rpc_server/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rpc_serialize/rpc_serialize_derive/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rpc_serialize/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_client/target" />
       <excludeFolder url="file://$MODULE_DIR$/rpc_lib/target" />

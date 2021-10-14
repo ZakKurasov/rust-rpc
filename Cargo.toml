@@ -4,5 +4,6 @@ members = [
     "rpc_interface",
     "rpc_lib",
     "rpc_lib/rpc_macro",
+    "rpc_serialize",
     "rpc_server"
 ]
